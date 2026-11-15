@@ -6,15 +6,27 @@ import java.nio.file.Files;
 import java.util.List;
 
 public class Main {
+static boolean found = false;
 
     public static void main(String[] args)  throws IOException {
         int len = args.length;
 
         if(len != 2){
         System.err.println("usage: mikke <検索ワード> <フォルダ>");
+        System.exit(2); // 終了コード: エラー
         }
         else{
          list(new File(args[1]), args[0]);
+         // 終了コードとして
+         System.out.println(found);
+         if(found == true){
+             System.out.println("正常終了");
+             System.exit(0); // 終了コード: 正常
+         }else{
+             System.out.println("0件見つかりました");
+             System.exit(1); // 終了コード: 見つからない
+         }
+
      }
   } // void Main
 
@@ -29,17 +41,23 @@ public class Main {
         }
         else{
         System.out.println("📄" + f.getPath());
-        List<String> lines = Files.readAllLines(f.toPath());
-
-        int count = 0;
-        for (String line : lines) {
-            count++;
-            if (line.contains(target)) {
-                // これ上でフルパス出しているからいらないかも。
-                String fileName = f.getName();
-                System.out.println(fileName + " < " + count + "行目" + "'" + line + "'" + "\n");
+        try{
+            List<String> lines = Files.readAllLines(f.toPath());
+            int count = 0;
+            for (String line : lines) {
+                count++;
+                if (line.contains(target)) {
+                    // 一つでも見つかったかどうかを識別。
+                    found = true;
+                    // これ上でフルパス出しているからいらないかも。
+                    String fileName = f.getName();
+                    System.out.println(fileName + " < " + count + "行目" + "'" + line + "'" + "\n");
+                }
             }
+        } catch (IOException e) {
+        System.err.println("cant read this file: " + f.getPath());
         }
+
 
         }
     }
@@ -55,3 +73,6 @@ public class Main {
 // jshell> import java.nio.file.*
 // jshell> Path p = Path.of("/home/kazumawada/work/mikke/.gitignore")
 // jshell> Files.readAllLines(p) // 一行ずつ文字列でかかれている配列で返ってくる・
+
+// MalformedInputException
+// 文字列で探しているときに、バイナリで書かれたファイルは読めない。そんなときにこのエラーが出るようになっている。
