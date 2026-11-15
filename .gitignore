@@ -1,6 +1,6 @@
 target/
 .DS_Store
 .idea/
-memo.md
+notes.md
 # 個人の学習メモ（GitHub には上げない）
-LEARNING_LOG.md
+learning-log.md
