@@ -7,6 +7,7 @@ import java.util.List;
 
 public class Main {
 static boolean found = false;
+static int countNum = 0;
 
     public static void main(String[] args)  throws IOException {
         int len = args.length;
@@ -17,41 +18,54 @@ static boolean found = false;
         }
         else{
          list(new File(args[1]), args[0]);
-         // 終了コードとして
-         System.out.println(found);
+         // System.out.println(found);
+
          if(found == true){
+             System.out.println(args[0] + "は、" + countNum + "個見つかりました");
              System.out.println("正常終了");
              System.exit(0); // 終了コード: 正常
          }else{
-             System.out.println("0件見つかりました");
+             System.err.println("0件見つかりました");
              System.exit(1); // 終了コード: 見つからない
          }
 
      }
-  } // void Main
+  }
 
   static void list(File dir, String target)  throws IOException {
     // Files.listFiles()を使用してfilesに格納する(ここではファイルとdirが混ざっている。だからこの後にforでその中を探していく必要がある。)
     File[] files = dir.listFiles();
 
+    // 仮引数はfilesだが、lsしたときのフォルダ、ファイルが全部一旦はfilesの中に入ってる。
+    // lsで出たフォルダ、ファイル群をループでそれぞれ調査している。
     for(File f : files){
+        // Fileクラスの中には、dir or fileを識別するメソッドがすでに用意されているから、それ使うだけで良い。
         if(f.isDirectory()){
+        // フォルダだったら、もう一回再帰でlist関数を読んで、ファイルになるまで繰り返させている。
         list(f, target); // filesのなかにあるひとつのfをもういっかいFile[] files = dir.listFiles();する。
-        System.out.println("📁" + f.getName());
+
+        // これデバック用で、コメントアウトしない意味は？結局再帰しているからフォルダ名表示は紛らわしい。
+        // System.out.println("📁" + f.getName());
         }
         else{
-        System.out.println("📄" + f.getPath());
+        // ファイルのpathを表示
+        // System.out.println("📄" + f.getPath());
         try{
+            // ファイルを一行ずつ読んで、targetを探す。
             List<String> lines = Files.readAllLines(f.toPath());
-            int count = 0;
+            int lineCount = 0;
+            // 実際にループで一行ずつ探す。countで何行目かを把握。
             for (String line : lines) {
-                count++;
+                lineCount++;
                 if (line.contains(target)) {
+                    countNum++;
                     // 一つでも見つかったかどうかを識別。
                     found = true;
                     // これ上でフルパス出しているからいらないかも。
                     String fileName = f.getName();
-                    System.out.println(fileName + " < " + count + "行目" + "'" + line + "'" + "\n");
+
+                    System.out.println("[📄" + f.getPath() + "]");
+                    System.out.println(lineCount + "行目:" + line + "\n");
                 }
             }
         } catch (IOException e) {
