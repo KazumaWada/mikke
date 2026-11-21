@@ -17,6 +17,11 @@ static int countNum = 0;
         System.exit(2); // 終了コード: エラー
         }
         else{
+         // listに渡す前に、args[1]に入ってくるものは本当に存在するのか確かめたい。(確かめずに渡すとヌルポになる)
+         if(!new File(args[1]).isDirectory()){
+             System.err.println("正しいフォルダパスではありません");
+             System.exit(2); // 終了コード: エラー
+         }
          list(new File(args[1]), args[0]);
          // System.out.println(found);
 
